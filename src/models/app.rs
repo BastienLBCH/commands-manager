@@ -51,7 +51,12 @@ impl MyApp {
                     for (key, value) in values {
                         ssh_instructions.push(SSHInstructions {
                             name: key.clone(),
-                            command: value.clone(),
+                            command: value
+                                .clone()
+                                .split(";;")
+                                .into_iter()
+                                .map(|string_part| String::from(string_part))
+                                .collect(),
                         });
                     }
                     let mut new_section = Section::new(ssh_instructions);
@@ -76,7 +81,7 @@ impl Default for Page {
 
 pub struct SSHInstructions {
     pub name: String,
-    pub command: String,
+    pub command: Vec<String>,
 }
 
 pub struct Section {
@@ -90,7 +95,7 @@ impl Section {
         Section {
             ssh_instructions,
             category_name: String::from("Catégorie"),
-            visible: false,
+            visible: true,
         }
     }
 }

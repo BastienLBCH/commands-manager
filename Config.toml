@@ -1,2 +1,2 @@
 [perso]
-gurdil = 'open -a iTerm .'
+open_iterm = "open -a iTerm ."

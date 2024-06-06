@@ -26,21 +26,24 @@ pub fn show_home_page(app: &mut MyApp, ui: &mut egui::Ui) {
                     if section.visible {
                         for ssh_instruction in &section.ssh_instructions {
                             if ui.label(ssh_instruction.name.clone()).double_clicked() {
-                                println!("Running command: {}", ssh_instruction.command);
-
+                                let mut args: Vec<String> = vec![];
+                                let shell_to_use: String;
                                 if env::consts::OS == "windows" {
-                                    let result = Command::new("cmd")
-                                        .args(["/C", ssh_instruction.command.as_str()])
-                                        .output()
-                                        .expect("failed to execute command");
-                                    println!("{:?}", result.stdout);
-                                } else {
-                                    let result = Command::new("sh")
-                                        .arg("-c")
-                                        .arg(ssh_instruction.command.clone())
-                                        .output()
+                                    args.push(String::from("C/"));
+                                    args.append(&mut ssh_instruction.command.clone());
+                                    shell_to_use = String::from("cmd");
+                                    Command::new(shell_to_use)
+                                        .args(args)
+                                        .spawn()
                                         .expect("Failed to execute command");
-                                    println!("{:?}", result.stdout);
+                                } else {
+                                    args.push(String::from("-c"));
+                                    shell_to_use = String::from("sh");
+                                    Command::new(shell_to_use)
+                                        .arg("-c")
+                                        .arg(ssh_instruction.command.clone().join(" "))
+                                        .spawn()
+                                        .expect("Failed to execute command");
                                 }
                             };
                         }
