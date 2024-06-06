@@ -30,7 +30,7 @@ pub fn show_home_page(app: &mut MyApp, ui: &mut egui::Ui) {
 
                                 if env::consts::OS == "windows" {
                                     let result = Command::new("cmd")
-                                        .args(&["/C", ssh_instruction.command.as_str()])
+                                        .args(["/C", ssh_instruction.command.as_str()])
                                         .output()
                                         .expect("failed to execute command");
                                     println!("{:?}", result.stdout);
