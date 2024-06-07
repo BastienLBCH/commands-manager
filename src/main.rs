@@ -7,7 +7,7 @@ use controllers::maincontroller::Controller;
 fn main() {
     let options = eframe::NativeOptions::default();
     let _ = eframe::run_native(
-        "Mon application egui MVC",
+        "",
         options,
         Box::new(|_ctx| Box::new(Controller::default())),
     );
