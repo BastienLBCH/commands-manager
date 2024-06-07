@@ -29,7 +29,7 @@ pub fn show_home_page(app: &mut MyApp, ui: &mut egui::Ui) {
                                 let mut args: Vec<String> = vec![];
                                 let shell_to_use: String;
                                 if env::consts::OS == "windows" {
-                                    args.push(String::from("C/"));
+                                    args.push(String::from("/C"));
                                     args.append(&mut ssh_instruction.command.clone());
                                     shell_to_use = String::from("cmd");
                                     Command::new(shell_to_use)
