@@ -4,6 +4,8 @@ use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
+use std::process::exit;
+use toml::Table;
 
 #[derive(Deserialize, Debug)]
 pub struct Config {
@@ -39,26 +41,34 @@ impl MyApp {
                     .expect("Impossible to write default config file content");
             }
 
-            let config_content =
-                fs::read_to_string("config.toml").expect("Impossible to read the file");
+            let config_content = fs::read_to_string("config.toml")
+                .expect("Impossible to read the file")
+                .parse::<Table>()
+                .unwrap();
 
             if config_content.len() > 0 {
-                let config: Config =
-                    toml::from_str(&config_content).expect("Impossible to parse file content");
-
-                for (section_name, values) in config.sections.iter() {
+                for (section_name, values) in config_content.iter() {
                     let mut ssh_instructions: std::vec::Vec<SSHInstructions> = vec![];
-                    for (key, value) in values {
-                        ssh_instructions.push(SSHInstructions {
-                            name: key.clone(),
-                            command: value
-                                .clone()
-                                .split(";;")
-                                .into_iter()
-                                .map(|string_part| String::from(string_part))
-                                .collect(),
-                        });
+                    match values.as_table() {
+                        None => continue,
+                        Some(config_table) => {
+                            for (command, arguments) in config_table {
+                                if let Some(command_arguments) = arguments.as_str() {
+                                    let arguments = String::from(command_arguments);
+                                    ssh_instructions.push(SSHInstructions {
+                                        name: command.clone(),
+                                        command: arguments
+                                            .clone()
+                                            .split(";;")
+                                            .into_iter()
+                                            .map(|string_part| String::from(string_part))
+                                            .collect(),
+                                    });
+                                }
+                            }
+                        }
                     }
+
                     let mut new_section = Section::new(ssh_instructions);
                     new_section.category_name = section_name.clone();
                     self.sections.push(new_section);
@@ -95,7 +105,7 @@ impl Section {
         Section {
             ssh_instructions,
             category_name: String::from("Catégorie"),
-            visible: true,
+            visible: false,
         }
     }
 }
