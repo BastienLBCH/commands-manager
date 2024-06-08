@@ -508,9 +508,8 @@ server13 = ['config example 30-13']
 server14 = ['config', 'example', '30-14']
 server15 = ['config example 30-15']
 
-
 [failingSection]
-test = 'huhuhu'
+test = 'this should not be loaded by the soft'
 
 [RealCommand]
 opening-iTerm = ['open -a iTerm']

@@ -14,7 +14,7 @@ pub struct MyApp {
 impl Default for MyApp {
     fn default() -> Self {
         MyApp {
-            app_name: String::from("ssh-manager"),
+            app_name: String::from("commands-manager"),
             conf_loaded: false,
             current_page: Page::Home,
             sections: vec![],
