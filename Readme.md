@@ -33,7 +33,7 @@ Fill it with the commands you want to have in the application.
 >
 > But on linux/unix systems I rocommend to have all your command in only one string :
 > ```toml
-> server1 = ['config example 1-1']
+>server1 = ['config example 1-1']
 > ```
 
 Once your `Config.toml` file is ready, simply start your binary.
