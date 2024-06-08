@@ -31,7 +31,7 @@ Fill it with the commands you want to have in the application.
 >server2 = ['config', 'example', '1-2']
 > ```
 >
-> But on linux/unix systems I rocommend to have all your command in only one string :
+> But on linux/unix systems I recommend to have your commands in only one string like this :
 > ```toml
 >server1 = ['config example 1-1']
 >```
