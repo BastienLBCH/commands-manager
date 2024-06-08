@@ -1,17 +1,8 @@
-use serde::Deserialize;
-use std::collections::HashMap;
 use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
-use std::process::exit;
-use toml::Table;
-
-#[derive(Deserialize, Debug)]
-pub struct Config {
-    #[serde(flatten)]
-    sections: HashMap<String, HashMap<String, String>>,
-}
+use toml::{Table, Value};
 
 pub struct MyApp {
     pub app_name: String,
@@ -44,7 +35,7 @@ impl MyApp {
             let config_content = fs::read_to_string("config.toml")
                 .expect("Impossible to read the file")
                 .parse::<Table>()
-                .unwrap();
+                .unwrap_or(toml::map::Map::new());
 
             if config_content.len() > 0 {
                 for (section_name, values) in config_content.iter() {
@@ -53,17 +44,24 @@ impl MyApp {
                         None => continue,
                         Some(config_table) => {
                             for (command, arguments) in config_table {
-                                if let Some(command_arguments) = arguments.as_str() {
-                                    let arguments = String::from(command_arguments);
-                                    ssh_instructions.push(SSHInstructions {
-                                        name: command.clone(),
-                                        command: arguments
-                                            .clone()
-                                            .split(";;")
-                                            .into_iter()
-                                            .map(|string_part| String::from(string_part))
-                                            .collect(),
-                                    });
+                                match arguments {
+                                    Value::Array(args) => {
+                                        ssh_instructions.push(SSHInstructions {
+                                            name: command.clone(),
+                                            command: args
+                                                .clone()
+                                                .into_iter()
+                                                .map(|individual_argument_to_stringify| {
+                                                    String::from(
+                                                        individual_argument_to_stringify
+                                                            .as_str()
+                                                            .unwrap_or(""),
+                                                    )
+                                                })
+                                                .collect(),
+                                        });
+                                    }
+                                    _other => continue,
                                 }
                             }
                         }

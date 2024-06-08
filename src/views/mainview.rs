@@ -38,10 +38,10 @@ pub fn show_home_page(app: &mut MyApp, ui: &mut egui::Ui) {
                                         .expect("Failed to execute command");
                                 } else {
                                     args.push(String::from("-c"));
+                                    args.append(&mut ssh_instruction.command.clone());
                                     shell_to_use = String::from("sh");
                                     Command::new(shell_to_use)
-                                        .arg("-c")
-                                        .arg(ssh_instruction.command.clone().join(" "))
+                                        .args(args)
                                         .spawn()
                                         .expect("Failed to execute command");
                                 }
