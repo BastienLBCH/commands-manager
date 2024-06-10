@@ -8,7 +8,7 @@ At office I work with lot of virtual machines and servers, so I am using this so
 
 If your operating system is a windows 64bit or a Mac with the new silicon chips (M1, M2, ...) you just have to download and run the executables files in the bin folder, otherwise you will have to build the project yourself.
 
-To do so, you first have to make sure that you have a working installation of rust and cargo. You can find the installations instructions (here)[https://doc.rust-lang.org/book/ch01-01-installation.html]
+To do so, you first have to make sure that you have a working installation of rust and cargo. You can find the installations instructions [here](https://doc.rust-lang.org/book/ch01-01-installation.html)
 
 Once you have rust and cargo installed, simply download this repository, as a zip or by cloning it using git, navigate inside this folder inside a command line interpreter (cmd, iTerm, gnome-terminal, ...) and run this command :
 
@@ -46,7 +46,6 @@ Sections are closed by default, simply click on a section to open or close it, t
 Pull requests are welcome. For major changes, please open an issue first
 to discuss what you would like to change.
 
-Please make sure to update tests as appropriate.
 
 ## License
 
