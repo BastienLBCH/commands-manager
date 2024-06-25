@@ -1,7 +1,6 @@
 use crate::models::app::{MyApp, Section};
 use std::env;
 use std::process::Command;
-// use eframe::egui::{Button, FontId};
 
 fn execute_command(cmd_args: Vec<String>) {
     let mut args: Vec<String> = Vec::new();
@@ -25,7 +24,7 @@ fn execute_command(cmd_args: Vec<String>) {
     }
 }
 
-fn display_section(ui: &mut egui::Ui, section: &mut Section) {
+fn display_section(ui: &mut egui::Ui, section: &mut Section, depth: i8) {
     let button = ui.add_sized(
         [ui.available_width(), 40.],
         egui::Button::new(section.name.clone()).wrap(true),
@@ -36,7 +35,7 @@ fn display_section(ui: &mut egui::Ui, section: &mut Section) {
     if section.visible {
         if section.subsections.len() > 0 {
             for subsection in &mut section.subsections {
-                display_section(ui, subsection);
+                display_section(ui, subsection, depth + 1);
             }
         }
         for ssh_instruction in &section.ssh_instructions {
@@ -60,7 +59,7 @@ pub fn show_home_page(app: &mut MyApp, ui: &mut egui::Ui) {
             egui::ScrollArea::vertical().show(ui, |ui| {
                 ui.set_min_size(ui.available_size());
                 for section in &mut app.sections {
-                    display_section(ui, section);
+                    display_section(ui, section, 0);
                 }
             });
         },

@@ -1,7 +1,7 @@
+use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
-use std::{fs, process::exit};
 use toml::{Table, Value};
 
 pub struct MyApp {
@@ -96,8 +96,6 @@ impl MyApp {
 
                     new_section.name = section_name.clone();
                     self.sections.push(new_section);
-
-                    println!("{:#?}", self.sections);
                 }
             }
             self.conf_loaded = true;
