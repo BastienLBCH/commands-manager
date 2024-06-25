@@ -1,7 +1,7 @@
-use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
+use std::{fs, process::exit};
 use toml::{Table, Value};
 
 pub struct MyApp {
@@ -22,6 +22,55 @@ impl Default for MyApp {
     }
 }
 
+#[derive(Debug)]
+pub struct SSHInstructions {
+    pub name: String,
+    pub command: Vec<String>,
+}
+
+#[derive(Debug)]
+pub struct Section {
+    pub ssh_instructions: Vec<SSHInstructions>,
+    pub subsections: Vec<Section>,
+    pub name: String,
+    pub visible: bool,
+}
+
+fn load_section_content_from_configuration_part(
+    section_name: &String,
+    values: &toml::Table,
+) -> Section {
+    let mut ssh_instructions: Vec<SSHInstructions> = Vec::new();
+    let section_name = section_name;
+    let mut section = Section::new(Vec::new());
+
+    section.name = section_name.clone();
+    for (key, value) in values.iter() {
+        match value {
+            Value::Array(commands) => {
+                ssh_instructions.push(SSHInstructions {
+                    name: key.clone(),
+                    command: commands
+                        .clone()
+                        .into_iter()
+                        .map(|individual_argument_to_stringify| {
+                            String::from(individual_argument_to_stringify.as_str().unwrap_or(""))
+                        })
+                        .collect(),
+                });
+            }
+            Value::Table(new_section) => {
+                let new_section: Section =
+                    load_section_content_from_configuration_part(key, new_section);
+                section.subsections.push(new_section);
+            }
+            _other => continue,
+        }
+    }
+    section.ssh_instructions = ssh_instructions;
+    section
+}
+
 impl MyApp {
     pub fn load_configuration(&mut self) {
         if !self.conf_loaded {
@@ -39,37 +88,16 @@ impl MyApp {
 
             if config_content.len() > 0 {
                 for (section_name, values) in config_content.iter() {
-                    let mut ssh_instructions: std::vec::Vec<SSHInstructions> = vec![];
-                    match values.as_table() {
-                        None => continue,
-                        Some(config_table) => {
-                            for (command, arguments) in config_table {
-                                match arguments {
-                                    Value::Array(args) => {
-                                        ssh_instructions.push(SSHInstructions {
-                                            name: command.clone(),
-                                            command: args
-                                                .clone()
-                                                .into_iter()
-                                                .map(|individual_argument_to_stringify| {
-                                                    String::from(
-                                                        individual_argument_to_stringify
-                                                            .as_str()
-                                                            .unwrap_or(""),
-                                                    )
-                                                })
-                                                .collect(),
-                                        });
-                                    }
-                                    _other => continue,
-                                }
-                            }
-                        }
+                    let mut new_section = Section::new(Vec::new());
+                    if let Some(value) = values.as_table() {
+                        new_section =
+                            load_section_content_from_configuration_part(section_name, value)
                     }
 
-                    let mut new_section = Section::new(ssh_instructions);
-                    new_section.category_name = section_name.clone();
+                    new_section.name = section_name.clone();
                     self.sections.push(new_section);
+
+                    println!("{:#?}", self.sections);
                 }
             }
             self.conf_loaded = true;
@@ -87,22 +115,12 @@ impl Default for Page {
     }
 }
 
-pub struct SSHInstructions {
-    pub name: String,
-    pub command: Vec<String>,
-}
-
-pub struct Section {
-    pub ssh_instructions: Vec<SSHInstructions>,
-    pub category_name: String,
-    pub visible: bool,
-}
-
 impl Section {
     pub fn new(ssh_instructions: Vec<SSHInstructions>) -> Self {
         Section {
             ssh_instructions,
-            category_name: String::from("Catégorie"),
+            subsections: Vec::new(),
+            name: String::from("Catégorie"),
             visible: false,
         }
     }

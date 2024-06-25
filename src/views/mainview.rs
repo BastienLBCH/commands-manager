@@ -18,7 +18,7 @@ pub fn show_home_page(app: &mut MyApp, ui: &mut egui::Ui) {
                 for section in &mut app.sections {
                     let button = ui.add_sized(
                         [ui.available_width(), 40.],
-                        egui::Button::new(section.category_name.clone()).wrap(true),
+                        egui::Button::new(section.name.clone()).wrap(true),
                     );
                     if button.clicked() {
                         section.visible = !section.visible;
