@@ -38,40 +38,46 @@ fn display_section(ui: &mut egui::Ui, section: &mut Section, depth: u8) {
     let depth_multiplier: u8 = 16;
     let rgb_intensity = base_color - (depth_multiplier * depth);
     let rgb_intensity = rgb_intensity;
-    let button = ui.add_sized(
-        [ui.available_width(), 40.],
-        egui::Button::new(generate_string_from_depth(
-            section.name.clone().as_str(),
-            depth as usize,
-        ))
-        .fill(Color32::from_rgb(
-            rgb_intensity,
-            rgb_intensity,
-            rgb_intensity,
-        ))
-        .wrap(true),
-    );
-    if button.clicked() {
-        section.visible = !section.visible;
-    }
-    if section.visible {
-        if section.subsections.len() > 0 {
-            for subsection in &mut section.subsections {
-                display_section(ui, subsection, depth + 1);
-            }
-        }
-        for ssh_instruction in &section.ssh_instructions {
-            if ui
-                .label(generate_string_from_depth(
-                    ssh_instruction.name.clone().as_str(),
+
+    ui.horizontal(|ui| {
+        ui.add_space((depth * depth_multiplier) as f32);
+        ui.vertical(|ui| {
+            let button = ui.add_sized(
+                [200., 40.],
+                egui::Button::new(generate_string_from_depth(
+                    section.name.clone().as_str(),
                     depth as usize,
                 ))
-                .double_clicked()
-            {
-                execute_command(ssh_instruction.command.clone());
-            };
-        }
-    }
+                .fill(Color32::from_rgb(
+                    rgb_intensity,
+                    rgb_intensity,
+                    rgb_intensity,
+                ))
+                .wrap(true),
+            );
+            if button.clicked() {
+                section.visible = !section.visible;
+            }
+            if section.visible {
+                if section.subsections.len() > 0 {
+                    for subsection in &mut section.subsections {
+                        display_section(ui, subsection, depth + 1);
+                    }
+                }
+                for ssh_instruction in &section.ssh_instructions {
+                    if ui
+                        .label(generate_string_from_depth(
+                            ssh_instruction.name.clone().as_str(),
+                            depth as usize,
+                        ))
+                        .double_clicked()
+                    {
+                        execute_command(ssh_instruction.command.clone());
+                    };
+                }
+            }
+        });
+    });
 }
 
 pub fn show_home_page(app: &mut MyApp, ui: &mut egui::Ui) {
@@ -85,7 +91,7 @@ pub fn show_home_page(app: &mut MyApp, ui: &mut egui::Ui) {
         egui::Layout::top_down_justified(egui::Align::Center),
         |ui| {
             egui::ScrollArea::vertical().show(ui, |ui| {
-                ui.set_min_size(ui.available_size());
+                // ui.set_min_size(ui.available_size());
                 for section in &mut app.sections {
                     display_section(ui, section, 0);
                 }

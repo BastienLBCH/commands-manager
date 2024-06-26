@@ -16,6 +16,7 @@ impl Default for Controller {
 
 impl eframe::App for Controller {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        ctx.set_pixels_per_point(1.5);
         egui::CentralPanel::default().show(ctx, |ui| match self.app.current_page {
             Page::Home => show_home_page(&mut self.app, ui),
         });

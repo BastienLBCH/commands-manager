@@ -8,6 +8,14 @@
         server6 = ['config', 'example', '2-6']
         server7 = ['config example 2-7']
         server8 = ['config', 'example', '2-8']
+            [servers.alpha.another.another]
+            server6 = ['config', 'example', '2-6']
+            server7 = ['config example 2-7']
+            server8 = ['config', 'example', '2-8']
+                [servers.alpha.another.another.anotheragain]
+                server6 = ['config', 'example', '2-6']
+                server7 = ['config example 2-7']
+                server8 = ['config', 'example', '2-8']
 
 
     [servers.beta]
