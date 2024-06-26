@@ -23,7 +23,7 @@
 
 
 [failingSection]
-test = ['this should not be loaded by the soft']
+test = 'this should not be loaded by the soft'
 
 [RealCommand]
 opening-iTerm = ['open -a iTerm']
