@@ -27,3 +27,7 @@ test = 'this should not be loaded by the soft'
 
 [RealCommand]
 opening-iTerm = ['open -a iTerm']
+
+
+[ssh-manager-configuration]
+pixels_per_point = 1.2

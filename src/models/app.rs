@@ -9,6 +9,7 @@ pub struct MyApp {
     pub conf_loaded: bool,
     pub current_page: Page,
     pub sections: Vec<Section>,
+    pub pixels_per_points: f32,
 }
 
 impl Default for MyApp {
@@ -18,6 +19,7 @@ impl Default for MyApp {
             conf_loaded: false,
             current_page: Page::Home,
             sections: vec![],
+            pixels_per_points: 1.2,
         }
     }
 }
@@ -71,6 +73,18 @@ fn load_section_content_from_configuration_part(
     section
 }
 
+fn load_configuration_options(app: &mut MyApp, configuration_options: &toml::Table) {
+    for (key, value) in configuration_options {
+        match key.as_str() {
+            "pixels_per_point" => {
+                let pixels_per_point_value: f32 = value.as_float().unwrap_or(1.2) as f32;
+                app.pixels_per_points = pixels_per_point_value;
+            }
+            _other => continue,
+        }
+    }
+}
+
 impl MyApp {
     pub fn load_configuration(&mut self) {
         if !self.conf_loaded {
@@ -90,8 +104,12 @@ impl MyApp {
                 for (section_name, values) in config_content.iter() {
                     let mut new_section = Section::new(Vec::new());
                     if let Some(value) = values.as_table() {
-                        new_section =
-                            load_section_content_from_configuration_part(section_name, value)
+                        if section_name == "ssh-manager-configuration" {
+                            load_configuration_options(self, value);
+                        } else {
+                            new_section =
+                                load_section_content_from_configuration_part(section_name, value)
+                        }
                     }
 
                     new_section.name = section_name.clone();
