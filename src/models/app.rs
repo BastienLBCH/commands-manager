@@ -104,7 +104,7 @@ impl MyApp {
                 for (section_name, values) in config_content.iter() {
                     let mut new_section = Section::new(Vec::new());
                     if let Some(value) = values.as_table() {
-                        if section_name == "ssh-manager-configuration" {
+                        if section_name == "commands-manager-configuration" {
                             load_configuration_options(self, value);
                         } else {
                             new_section =

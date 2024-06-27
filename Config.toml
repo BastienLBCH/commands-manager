@@ -29,5 +29,5 @@ test = 'this should not be loaded by the soft'
 opening-iTerm = ['open -a iTerm']
 
 
-[ssh-manager-configuration]
+[commands-manager-configuration]
 pixels_per_point = 1.2
