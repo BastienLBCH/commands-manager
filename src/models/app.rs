@@ -83,7 +83,7 @@ fn load_configuration_options(app: &mut MyApp, configuration_options: &toml::Tab
                 app.pixels_per_points = pixels_per_point_value;
             }
             "indentation_amplifier" => {
-                let indentation_amplifier: f32 = value.as_float().unwrap_or(1.2) as f32;
+                let indentation_amplifier: f32 = value.as_float().unwrap_or(16.0) as f32;
                 app.indentation_amplifier = indentation_amplifier;
             }
             _other => continue,
