@@ -46,7 +46,7 @@ fn display_section(
 
     ui.horizontal(|ui| {
         if depth > 0 {
-            ui.add_space(depth_multiplier as f32);
+            ui.add_space(indentation_amplifier);
         }
         ui.vertical(|ui| {
             let button = ui.add_sized(
