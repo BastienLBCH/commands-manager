@@ -10,6 +10,7 @@ pub struct MyApp {
     pub current_page: Page,
     pub sections: Vec<Section>,
     pub pixels_per_points: f32,
+    pub indentation_amplifier: f32,
 }
 
 impl Default for MyApp {
@@ -20,6 +21,7 @@ impl Default for MyApp {
             current_page: Page::Home,
             sections: vec![],
             pixels_per_points: 1.2,
+            indentation_amplifier: 16.,
         }
     }
 }
@@ -80,6 +82,10 @@ fn load_configuration_options(app: &mut MyApp, configuration_options: &toml::Tab
                 let pixels_per_point_value: f32 = value.as_float().unwrap_or(1.2) as f32;
                 app.pixels_per_points = pixels_per_point_value;
             }
+            "indentation_amplifier" => {
+                let indentation_amplifier: f32 = value.as_float().unwrap_or(1.2) as f32;
+                app.indentation_amplifier = indentation_amplifier;
+            }
             _other => continue,
         }
     }
@@ -102,18 +108,16 @@ impl MyApp {
 
             if config_content.len() > 0 {
                 for (section_name, values) in config_content.iter() {
-                    let mut new_section = Section::new(Vec::new());
                     if let Some(value) = values.as_table() {
                         if section_name == "commands-manager-configuration" {
                             load_configuration_options(self, value);
                         } else {
-                            new_section =
-                                load_section_content_from_configuration_part(section_name, value)
+                            let mut new_section =
+                                load_section_content_from_configuration_part(section_name, value);
+                            new_section.name = section_name.clone();
+                            self.sections.push(new_section);
                         }
                     }
-
-                    new_section.name = section_name.clone();
-                    self.sections.push(new_section);
                 }
             }
             self.conf_loaded = true;
@@ -139,5 +143,8 @@ impl Section {
             name: String::from("Catégorie"),
             visible: false,
         }
+    }
+    pub fn toggle_visibility(&mut self) {
+        self.visible = !self.visible;
     }
 }

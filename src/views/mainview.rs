@@ -33,14 +33,21 @@ fn generate_string_from_depth(text_to_write: &str, depth: usize) -> String {
     generated_string
 }
 
-fn display_section(ui: &mut egui::Ui, section: &mut Section, depth: u8) {
+fn display_section(
+    ui: &mut egui::Ui,
+    section: &mut Section,
+    depth: u8,
+    indentation_amplifier: f32,
+) {
     let base_color: u8 = 232;
     let depth_multiplier: u8 = 16;
     let rgb_intensity = base_color - (depth_multiplier * depth);
     let rgb_intensity = rgb_intensity;
 
     ui.horizontal(|ui| {
-        ui.add_space((depth * depth_multiplier) as f32);
+        if depth > 0 {
+            ui.add_space(depth_multiplier as f32);
+        }
         ui.vertical(|ui| {
             let button = ui.add_sized(
                 [200., 40.],
@@ -56,12 +63,12 @@ fn display_section(ui: &mut egui::Ui, section: &mut Section, depth: u8) {
                 .wrap(true),
             );
             if button.clicked() {
-                section.visible = !section.visible;
+                section.toggle_visibility();
             }
             if section.visible {
                 if section.subsections.len() > 0 {
                     for subsection in &mut section.subsections {
-                        display_section(ui, subsection, depth + 1);
+                        display_section(ui, subsection, depth + 1, indentation_amplifier);
                     }
                 }
                 for ssh_instruction in &section.ssh_instructions {
@@ -81,8 +88,6 @@ fn display_section(ui: &mut egui::Ui, section: &mut Section, depth: u8) {
 }
 
 pub fn show_home_page(app: &mut MyApp, ui: &mut egui::Ui) {
-    app.load_configuration();
-
     ui.heading(app.app_name.clone());
 
     ui.separator();
@@ -93,7 +98,7 @@ pub fn show_home_page(app: &mut MyApp, ui: &mut egui::Ui) {
             egui::ScrollArea::vertical().show(ui, |ui| {
                 // ui.set_min_size(ui.available_size());
                 for section in &mut app.sections {
-                    display_section(ui, section, 0);
+                    display_section(ui, section, 0, app.indentation_amplifier.clone());
                 }
             });
         },

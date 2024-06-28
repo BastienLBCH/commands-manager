@@ -30,4 +30,4 @@ opening-iTerm = ['open -a iTerm']
 
 
 [commands-manager-configuration]
-pixels_per_point = 1.2
+pixels_per_point = 3.0
