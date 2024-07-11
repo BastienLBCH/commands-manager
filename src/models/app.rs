@@ -11,10 +11,12 @@ pub struct MyApp {
     pub sections: Vec<Section>,
     pub pixels_per_points: f32,
     pub indentation_amplifier: f32,
+    pub rgb_values: [u8; 3],
 }
 
 impl Default for MyApp {
     fn default() -> Self {
+        let base_color: u8 = 232;
         MyApp {
             app_name: String::from("commands-manager"),
             conf_loaded: false,
@@ -22,6 +24,7 @@ impl Default for MyApp {
             sections: vec![],
             pixels_per_points: 1.2,
             indentation_amplifier: 16.,
+            rgb_values: [base_color, base_color, base_color],
         }
     }
 }
@@ -85,6 +88,24 @@ fn load_configuration_options(app: &mut MyApp, configuration_options: &toml::Tab
             "indentation_amplifier" => {
                 let indentation_amplifier: f32 = value.as_float().unwrap_or(1.2) as f32;
                 app.indentation_amplifier = indentation_amplifier;
+            }
+            "rgb_initial_value" => {
+                if let Some(rgb_values) = value.as_array() {
+                    if rgb_values.len() == 3 {
+                        let mut extracted_rgb_values: [u8; 3] = app.rgb_values.clone();
+                        for i in 0..3 {
+                            if let Some(new_rgb_value) = rgb_values[i].as_integer() {
+                                extracted_rgb_values[i] = new_rgb_value as u8;
+                            } else {
+                                extracted_rgb_values = app.rgb_values.clone();
+                                break;
+                            }
+                        }
+                        app.rgb_values = extracted_rgb_values;
+                    } else {
+                        continue;
+                    }
+                }
             }
             _other => continue,
         }

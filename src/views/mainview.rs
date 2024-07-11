@@ -38,12 +38,14 @@ fn display_section(
     section: &mut Section,
     depth: u8,
     indentation_amplifier: f32,
+    rgb_values: [u8; 3],
 ) {
-    let base_color: u8 = 232;
     let depth_multiplier: u8 = 16;
-    let rgb_intensity = base_color - (depth_multiplier * depth);
-    let rgb_intensity = rgb_intensity;
-
+    let mut new_rgb_values = rgb_values.clone();
+    for i in 0..3 {
+        new_rgb_values[i] = rgb_values[i] - (depth_multiplier * depth);
+    }
+    // println!("{:?}", new_rgb_values);
     ui.horizontal(|ui| {
         if depth > 0 {
             ui.add_space(depth_multiplier as f32);
@@ -56,9 +58,9 @@ fn display_section(
                     depth as usize,
                 ))
                 .fill(Color32::from_rgb(
-                    rgb_intensity,
-                    rgb_intensity,
-                    rgb_intensity,
+                    new_rgb_values[0],
+                    new_rgb_values[1],
+                    new_rgb_values[2],
                 ))
                 .wrap(true),
             );
@@ -68,7 +70,13 @@ fn display_section(
             if section.visible {
                 if section.subsections.len() > 0 {
                     for subsection in &mut section.subsections {
-                        display_section(ui, subsection, depth + 1, indentation_amplifier);
+                        display_section(
+                            ui,
+                            subsection,
+                            depth + 1,
+                            indentation_amplifier,
+                            new_rgb_values,
+                        );
                     }
                 }
                 for ssh_instruction in &section.ssh_instructions {
@@ -98,7 +106,13 @@ pub fn show_home_page(app: &mut MyApp, ui: &mut egui::Ui) {
             egui::ScrollArea::vertical().show(ui, |ui| {
                 // ui.set_min_size(ui.available_size());
                 for section in &mut app.sections {
-                    display_section(ui, section, 0, app.indentation_amplifier.clone());
+                    display_section(
+                        ui,
+                        section,
+                        0,
+                        app.indentation_amplifier.clone(),
+                        app.rgb_values.clone(),
+                    );
                 }
             });
         },
