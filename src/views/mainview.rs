@@ -104,7 +104,7 @@ pub fn show_home_page(app: &mut MyApp, ui: &mut egui::Ui) {
         egui::Layout::top_down_justified(egui::Align::Center),
         |ui| {
             egui::ScrollArea::vertical().show(ui, |ui| {
-                // ui.set_min_size(ui.available_size());
+                ui.set_min_size(ui.available_size());
                 for section in &mut app.sections {
                     display_section(
                         ui,

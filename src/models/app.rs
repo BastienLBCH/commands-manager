@@ -1,3 +1,4 @@
+use filetime::FileTime;
 use std::fs;
 use std::fs::File;
 use std::io::Write;
@@ -6,12 +7,13 @@ use toml::{Table, Value};
 
 pub struct MyApp {
     pub app_name: String,
-    pub conf_loaded: bool,
+    pub config_file: String,
     pub current_page: Page,
     pub sections: Vec<Section>,
     pub pixels_per_points: f32,
     pub indentation_amplifier: f32,
     pub rgb_values: [u8; 3],
+    pub last_configuration_file_loading: i64,
 }
 
 impl Default for MyApp {
@@ -19,12 +21,13 @@ impl Default for MyApp {
         let base_color: u8 = 232;
         MyApp {
             app_name: String::from("commands-manager"),
-            conf_loaded: false,
             current_page: Page::Home,
             sections: vec![],
             pixels_per_points: 1.2,
             indentation_amplifier: 16.,
             rgb_values: [base_color, base_color, base_color],
+            last_configuration_file_loading: 0,
+            config_file: String::from("config.toml"),
         }
     }
 }
@@ -41,6 +44,69 @@ pub struct Section {
     pub subsections: Vec<Section>,
     pub name: String,
     pub visible: bool,
+}
+
+impl MyApp {
+    pub fn load_configuration(&mut self) {
+        let configuration_file_metadata = fs::metadata(self.config_file.clone()).unwrap();
+        let last_modification_time =
+            FileTime::from_last_modification_time(&configuration_file_metadata).seconds();
+
+        if last_modification_time > self.last_configuration_file_loading {
+            self.sections = Vec::new();
+            self.last_configuration_file_loading = FileTime::now().seconds();
+            if !Path::new(&self.config_file).exists() {
+                let mut file = File::create(self.config_file.clone())
+                    .expect("Impossible to create config file");
+                file.write_all("".as_bytes())
+                    .expect("Impossible to write default config file content");
+            }
+
+            let config_content = fs::read_to_string(self.config_file.clone())
+                .expect("Impossible to read the file")
+                .parse::<Table>()
+                .unwrap_or(toml::map::Map::new());
+
+            if config_content.len() > 0 {
+                for (section_name, values) in config_content.iter() {
+                    if let Some(value) = values.as_table() {
+                        if section_name == "commands-manager-configuration" {
+                            load_configuration_options(self, value);
+                        } else {
+                            let mut new_section =
+                                load_section_content_from_configuration_part(section_name, value);
+                            new_section.name = section_name.clone();
+                            self.sections.push(new_section);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+pub enum Page {
+    Home,
+}
+
+impl Default for Page {
+    fn default() -> Self {
+        Page::Home
+    }
+}
+
+impl Section {
+    pub fn new(ssh_instructions: Vec<SSHInstructions>) -> Self {
+        Section {
+            ssh_instructions,
+            subsections: Vec::new(),
+            name: String::from("Catégorie"),
+            visible: false,
+        }
+    }
+    pub fn toggle_visibility(&mut self) {
+        self.visible = !self.visible;
+    }
 }
 
 fn load_section_content_from_configuration_part(
@@ -109,63 +175,5 @@ fn load_configuration_options(app: &mut MyApp, configuration_options: &toml::Tab
             }
             _other => continue,
         }
-    }
-}
-
-impl MyApp {
-    pub fn load_configuration(&mut self) {
-        if !self.conf_loaded {
-            let file_path = "Config.toml";
-            if !Path::new(file_path).exists() {
-                let mut file = File::create(file_path).expect("Impossible to create config file");
-                file.write_all("".as_bytes())
-                    .expect("Impossible to write default config file content");
-            }
-
-            let config_content = fs::read_to_string("config.toml")
-                .expect("Impossible to read the file")
-                .parse::<Table>()
-                .unwrap_or(toml::map::Map::new());
-
-            if config_content.len() > 0 {
-                for (section_name, values) in config_content.iter() {
-                    if let Some(value) = values.as_table() {
-                        if section_name == "commands-manager-configuration" {
-                            load_configuration_options(self, value);
-                        } else {
-                            let mut new_section =
-                                load_section_content_from_configuration_part(section_name, value);
-                            new_section.name = section_name.clone();
-                            self.sections.push(new_section);
-                        }
-                    }
-                }
-            }
-            self.conf_loaded = true;
-        }
-    }
-}
-
-pub enum Page {
-    Home,
-}
-
-impl Default for Page {
-    fn default() -> Self {
-        Page::Home
-    }
-}
-
-impl Section {
-    pub fn new(ssh_instructions: Vec<SSHInstructions>) -> Self {
-        Section {
-            ssh_instructions,
-            subsections: Vec::new(),
-            name: String::from("Catégorie"),
-            visible: false,
-        }
-    }
-    pub fn toggle_visibility(&mut self) {
-        self.visible = !self.visible;
     }
 }

@@ -12,6 +12,7 @@ toml = {version = "0.8.14", features = ["preserve_order"]}
 serde = { version = "1.0.203", features = ["derive"] }
 serde_derive = "1.0"
 uuid = {version = "1.9.1", features = ["fast-rng", "v4", "macro-diagnostics",]}
+filetime = "0.2.23"
 
 [profile.release]
 panic = 'abort'

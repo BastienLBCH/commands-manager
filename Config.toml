@@ -32,4 +32,4 @@ opening-iTerm = ['open -a iTerm']
 [commands-manager-configuration]
 pixels_per_point = 1.0                  # Defines interface size
 indentation_amplifier = 16.0            # Defines differences between sections and nested sections
-rgb_initial_value = [232, 232, 232]     # Base rgb values of the interface
+rgb_initial_value = [171, 219, 227]     # Base rgb values of the interface
