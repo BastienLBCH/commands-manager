@@ -1,15 +1,15 @@
-use crate::models::app::{MyApp, Page};
+use crate::models::app::{CommandManagerApp, Page};
 use crate::views::mainview::show_home_page;
 use eframe::egui;
 
 pub struct Controller {
-    app: MyApp,
+    app: CommandManagerApp,
 }
 
 impl Default for Controller {
     fn default() -> Self {
         Controller {
-            app: MyApp::default(),
+            app: CommandManagerApp::default(),
         }
     }
 }

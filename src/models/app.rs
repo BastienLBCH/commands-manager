@@ -5,7 +5,7 @@ use std::io::Write;
 use std::path::Path;
 use toml::{Table, Value};
 
-pub struct MyApp {
+pub struct CommandManagerApp {
     pub app_name: String,
     pub config_file: String,
     pub current_page: Page,
@@ -16,10 +16,10 @@ pub struct MyApp {
     pub last_configuration_file_loading: i64,
 }
 
-impl Default for MyApp {
+impl Default for CommandManagerApp {
     fn default() -> Self {
         let base_color: u8 = 232;
-        MyApp {
+        CommandManagerApp {
             app_name: String::from("commands-manager"),
             current_page: Page::Home,
             sections: vec![],
@@ -46,14 +46,14 @@ pub struct Section {
     pub visible: bool,
 }
 
-impl MyApp {
+impl CommandManagerApp {
     pub fn load_configuration(&mut self) {
         let configuration_file_metadata = fs::metadata(self.config_file.clone()).unwrap();
         let last_modification_time =
             FileTime::from_last_modification_time(&configuration_file_metadata).seconds();
 
         if last_modification_time > self.last_configuration_file_loading {
-            self.sections = Vec::new();
+            *self = CommandManagerApp::default();
             self.last_configuration_file_loading = FileTime::now().seconds();
             if !Path::new(&self.config_file).exists() {
                 let mut file = File::create(self.config_file.clone())
@@ -144,7 +144,7 @@ fn load_section_content_from_configuration_part(
     section
 }
 
-fn load_configuration_options(app: &mut MyApp, configuration_options: &toml::Table) {
+fn load_configuration_options(app: &mut CommandManagerApp, configuration_options: &toml::Table) {
     for (key, value) in configuration_options {
         match key.as_str() {
             "pixels_per_point" => {

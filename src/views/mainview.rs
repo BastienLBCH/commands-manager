@@ -1,6 +1,6 @@
 use egui::Color32;
 
-use crate::models::app::{MyApp, Section};
+use crate::models::app::{CommandManagerApp, Section};
 use std::env;
 use std::process::Command;
 
@@ -122,7 +122,7 @@ fn display_section(
     });
 }
 
-pub fn show_home_page(app: &mut MyApp, ui: &mut egui::Ui) {
+pub fn show_home_page(app: &mut CommandManagerApp, ui: &mut egui::Ui) {
     ui.heading(app.app_name.clone());
 
     ui.separator();
