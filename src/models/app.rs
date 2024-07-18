@@ -1,8 +1,9 @@
-use filetime::FileTime;
 use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
+
+use filetime::FileTime;
 use toml::{Table, Value};
 
 pub struct CommandManagerApp {

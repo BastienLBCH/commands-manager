@@ -1,30 +1,7 @@
 use egui::Color32;
 
+use crate::controllers::maincontroller::MainController;
 use crate::models::app::{CommandManagerApp, Section};
-use std::env;
-use std::process::Command;
-
-fn execute_command(cmd_args: Vec<String>) {
-    let mut args: Vec<String> = Vec::new();
-    let shell_to_use: String;
-    if env::consts::OS == "windows" {
-        args.push(String::from("/C"));
-        args.append(&mut cmd_args.clone());
-        shell_to_use = String::from("cmd");
-        Command::new(shell_to_use)
-            .args(args)
-            .spawn()
-            .expect("Failed to execute command");
-    } else {
-        args.push(String::from("-c"));
-        args.append(&mut cmd_args.clone());
-        shell_to_use = String::from("sh");
-        Command::new(shell_to_use)
-            .args(args)
-            .spawn()
-            .expect("Failed to execute command");
-    }
-}
 
 fn generate_string_from_depth(text_to_write: &str, depth: usize) -> String {
     let mut generated_string: String = String::from("-".repeat(depth as usize));
@@ -83,12 +60,12 @@ fn display_section(
                         section.name.clone().as_str(),
                         depth as usize,
                     ))
-                    .fill(Color32::from_rgb(
-                        new_rgb_values[0],
-                        new_rgb_values[1],
-                        new_rgb_values[2],
-                    ))
-                    .wrap(true),
+                        .fill(Color32::from_rgb(
+                            new_rgb_values[0],
+                            new_rgb_values[1],
+                            new_rgb_values[2],
+                        ))
+                        .wrap(true),
                 );
                 if button.clicked() {
                     section.toggle_visibility();
@@ -114,7 +91,7 @@ fn display_section(
                         ))
                         .double_clicked()
                     {
-                        execute_command(ssh_instruction.command.clone());
+                        MainController::execute_command(ssh_instruction.command.clone());
                     };
                 }
             }
