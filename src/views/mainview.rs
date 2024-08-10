@@ -45,7 +45,14 @@ fn display_section(
     let depth_multiplier: u8 = 16;
     let mut new_rgb_values = rgb_values.clone();
     for i in 0..3 {
-        new_rgb_values[i] = rgb_values[i] - (depth_multiplier * depth);
+        let depth_impact: u8 = depth_multiplier * depth;
+        if depth_impact > rgb_values[i] {
+            new_rgb_values[i] = 0;
+        }
+        else {
+            new_rgb_values[i] = rgb_values[i] - (depth_multiplier * depth);
+        }
+
     }
     ui.horizontal(|ui| {
         if depth > 0 {
