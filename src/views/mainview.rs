@@ -1,16 +1,13 @@
-use egui::Color32;
+use crate::models::app::{CommandManagerApp};
 
-use crate::controllers::maincontroller::MainController;
-use crate::models::app::{CommandManagerApp, Section};
-
-fn generate_string_from_depth(text_to_write: &str, depth: usize) -> String {
+pub(crate) fn generate_string_from_depth(text_to_write: &str, depth: usize) -> String {
     let mut generated_string: String = String::from("-".repeat(depth as usize));
     generated_string.push_str(" ");
     generated_string.push_str(text_to_write);
     generated_string
 }
 
-fn define_best_text_color(background_color_rgb: [u8; 3]) -> egui::Color32 {
+pub(crate) fn define_best_text_color(background_color_rgb: [u8; 3]) -> egui::Color32 {
     let mut normalized_rgb_values: [f64; 3] = [0.0, 0.0, 0.0];
     let mut rgb_values_with_gamma_correction: [f64; 3] = [0.0, 0.0, 0.0];
 
@@ -35,77 +32,6 @@ fn define_best_text_color(background_color_rgb: [u8; 3]) -> egui::Color32 {
     }
 }
 
-fn display_section(
-    ui: &mut egui::Ui,
-    section: &mut Section,
-    depth: u8,
-    indentation_amplifier: f32,
-    rgb_values: [u8; 3],
-) {
-    let depth_multiplier: u8 = 16;
-    let mut new_rgb_values = rgb_values.clone();
-    for i in 0..3 {
-        let depth_impact: u8 = depth_multiplier * depth;
-        if depth_impact > rgb_values[i] {
-            new_rgb_values[i] = 0;
-        }
-        else {
-            new_rgb_values[i] = rgb_values[i] - (depth_multiplier * depth);
-        }
-
-    }
-    ui.horizontal(|ui| {
-        if depth > 0 {
-            ui.add_space(indentation_amplifier);
-        }
-        ui.vertical(|ui| {
-            ui.scope(|ui| {
-                ui.visuals_mut().override_text_color = Some(define_best_text_color(new_rgb_values));
-                let button = ui.add_sized(
-                    [200., 40.],
-                    egui::Button::new(generate_string_from_depth(
-                        section.name.clone().as_str(),
-                        depth as usize,
-                    ))
-                        .fill(Color32::from_rgb(
-                            new_rgb_values[0],
-                            new_rgb_values[1],
-                            new_rgb_values[2],
-                        ))
-                        .wrap(true),
-                );
-                if button.clicked() {
-                    section.toggle_visibility();
-                }
-            });
-            if section.visible {
-                if section.subsections.len() > 0 {
-                    for subsection in &mut section.subsections {
-                        display_section(
-                            ui,
-                            subsection,
-                            depth + 1,
-                            indentation_amplifier,
-                            new_rgb_values,
-                        );
-                    }
-                }
-                for ssh_instruction in &section.ssh_instructions {
-                    if ui
-                        .label(generate_string_from_depth(
-                            ssh_instruction.name.clone().as_str(),
-                            depth as usize,
-                        ))
-                        .double_clicked()
-                    {
-                        MainController::execute_command(ssh_instruction.command.clone());
-                    };
-                }
-            }
-        });
-    });
-}
-
 pub fn show_home_page(app: &mut CommandManagerApp, ui: &mut egui::Ui) {
     ui.heading(app.app_name.clone());
 
@@ -117,15 +43,16 @@ pub fn show_home_page(app: &mut CommandManagerApp, ui: &mut egui::Ui) {
             egui::ScrollArea::vertical().show(ui, |ui| {
                 ui.set_min_size(ui.available_size());
                 for section in &mut app.sections {
-                    display_section(
+                    section.show(
                         ui,
-                        section,
-                        0,
-                        app.indentation_amplifier.clone(),
-                        app.rgb_values.clone(),
-                    );
+                        app.rgb_values,
+                        app.indentation_amplifier,
+                        0
+                    )
                 }
             });
         },
     );
 }
+
+
