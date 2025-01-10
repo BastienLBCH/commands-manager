@@ -6,6 +6,7 @@ use std::path::Path;
 use filetime::FileTime;
 use toml::{Table, Value};
 
+
 pub struct CommandManagerApp {
     pub app_name: String,
     pub config_file: String,
@@ -15,6 +16,7 @@ pub struct CommandManagerApp {
     pub indentation_amplifier: f32,
     pub rgb_values: [u8; 3],
     pub last_configuration_file_loading: i64,
+    pub element_is_moving: bool
 }
 
 impl Default for CommandManagerApp {
@@ -29,23 +31,11 @@ impl Default for CommandManagerApp {
             rgb_values: [base_color, base_color, base_color],
             last_configuration_file_loading: 0,
             config_file: String::from("config.toml"),
+            element_is_moving: false
         }
     }
 }
 
-#[derive(Debug)]
-pub struct SSHInstructions {
-    pub name: String,
-    pub command: Vec<String>,
-}
-
-#[derive(Debug)]
-pub struct Section {
-    pub ssh_instructions: Vec<SSHInstructions>,
-    pub subsections: Vec<Section>,
-    pub name: String,
-    pub visible: bool,
-}
 
 impl CommandManagerApp {
     pub fn load_configuration(&mut self) {
@@ -75,7 +65,7 @@ impl CommandManagerApp {
                             load_configuration_options(self, value);
                         } else {
                             let mut new_section =
-                                load_section_content_from_configuration_part(section_name, value);
+                                load_section_content_from_configuration_part(section_name, value, &self.element_is_moving);
                             new_section.name = section_name.clone();
                             self.sections.push(new_section);
                         }
@@ -86,14 +76,18 @@ impl CommandManagerApp {
     }
 }
 
-pub enum Page {
-    Home,
+#[derive(Debug)]
+pub struct SSHInstructions {
+    pub name: String,
+    pub command: Vec<String>,
 }
 
-impl Default for Page {
-    fn default() -> Self {
-        Page::Home
-    }
+#[derive(Debug)]
+pub struct Section {
+    pub ssh_instructions: Vec<SSHInstructions>,
+    pub subsections: Vec<Section>,
+    pub name: String,
+    pub visible: bool,
 }
 
 impl Section {
@@ -113,6 +107,7 @@ impl Section {
 fn load_section_content_from_configuration_part(
     section_name: &String,
     values: &toml::Table,
+    element_is_moving: &bool
 ) -> Section {
     let mut ssh_instructions: Vec<SSHInstructions> = Vec::new();
     let section_name = section_name;
@@ -135,7 +130,7 @@ fn load_section_content_from_configuration_part(
             }
             Value::Table(new_section) => {
                 let new_section: Section =
-                    load_section_content_from_configuration_part(key, new_section);
+                    load_section_content_from_configuration_part(key, new_section, element_is_moving);
                 section.subsections.push(new_section);
             }
             _other => continue,
@@ -144,6 +139,18 @@ fn load_section_content_from_configuration_part(
     section.ssh_instructions = ssh_instructions;
     section
 }
+
+
+pub enum Page {
+    Home,
+}
+
+impl Default for Page {
+    fn default() -> Self {
+        Page::Home
+    }
+}
+
 
 fn load_configuration_options(app: &mut CommandManagerApp, configuration_options: &toml::Table) {
     for (key, value) in configuration_options {

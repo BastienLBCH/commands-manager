@@ -49,16 +49,6 @@ impl Section {
                     }
                 });
                 if self.visible {
-                    if self.subsections.len() > 0 {
-                        for subsection in &mut self.subsections {
-                            subsection.show(
-                                ui,
-                                background_color,
-                                indentation_amplifier,
-                                depth + 1,
-                            );
-                        }
-                    }
                     for ssh_instruction in &self.ssh_instructions {
                         if ui
                             .label(crate::views::mainview::generate_string_from_depth(
@@ -69,6 +59,16 @@ impl Section {
                         {
                             MainController::execute_command(ssh_instruction.command.clone());
                         };
+                    }
+                    if self.subsections.len() > 0 {
+                        for subsection in &mut self.subsections {
+                            subsection.show(
+                                ui,
+                                background_color,
+                                indentation_amplifier,
+                                depth + 1,
+                            );
+                        }
                     }
                 }
             });
